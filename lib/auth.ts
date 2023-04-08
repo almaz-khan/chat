@@ -32,17 +32,23 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const dbUser = (await db.get(`user:${user.id}`)) as User | null;
+      const dbUser = (await db.get(`user:${token.id}`)) as {
+        user: User;
+      } | null;
 
-      if (!dbUser) {
-        token.id = user!.id;
+      if (!dbUser || !dbUser.user) {
+        if (user) {
+          token.id = user!.id;
+        }
+
+        return token;
       }
 
       return {
-        id: dbUser?.id || token.id,
-        name: dbUser?.name,
-        email: dbUser?.email,
-        image: dbUser?.image,
+        id: dbUser.user.id || token.id,
+        name: dbUser.user.name,
+        email: dbUser.user.email,
+        image: dbUser.user.image,
       };
     },
     async session({ session, token }) {
