@@ -32,11 +32,9 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const dbUser = (await db.get(`user:${token.id}`)) as {
-        user: User;
-      } | null;
+      const dbUser = (await db.get(`user:${token.id}`)) as User | null;
 
-      if (!dbUser || !dbUser.user) {
+      if (!dbUser) {
         if (user) {
           token.id = user!.id;
         }
@@ -45,10 +43,10 @@ export const authOptions: NextAuthOptions = {
       }
 
       return {
-        id: dbUser.user.id || token.id,
-        name: dbUser.user.name,
-        email: dbUser.user.email,
-        image: dbUser.user.image,
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        image: dbUser.image,
       };
     },
     async session({ session, token }) {
