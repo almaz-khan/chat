@@ -37,7 +37,7 @@ const Requests = async ({}: RequestsProps) => {
       <div className="flex flex-col gap-4">
         <FriendRequests
           incomingFriendRequests={incomingFrienddRequests}
-          sesstionId={session.user.id}
+          sessionId={session.user.id}
         />
       </div>
     </main>

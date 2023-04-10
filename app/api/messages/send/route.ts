@@ -1,6 +1,8 @@
 import { fetchRedis } from "@/helpers/redis";
+import { toPusherKey } from "@/helpers/to-pusher-key";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { pusherServer } from "@/lib/pusher";
 import { messageValidator } from "@/lib/validators/message";
 import { nanoid } from "nanoid";
 import { getServerSession } from "next-auth";
@@ -28,7 +30,6 @@ export async function POST(req: Request) {
 
     const isFried = friendList.includes(friendId);
 
-    console.log(userId1, userId2, session.user.id);
     if (!isFried) {
       return new Response("Unauthorized", { status: 401 });
     }
@@ -43,6 +44,12 @@ export async function POST(req: Request) {
     };
 
     const message = messageValidator.parse(messageData);
+
+    pusherServer.trigger(
+      toPusherKey(`chat:${chatId}`),
+      "incoming_message",
+      message
+    );
 
     const rawSender = (await fetchRedis(
       "get",
